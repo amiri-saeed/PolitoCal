@@ -15,7 +15,6 @@ from parser.parse import parse_university_calendar  # Import your parser functio
 
 
 app = Flask(__name__)
-# app.secret_key = '0d33fb35e6e7732afd573ab45d0da63a'
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 
 
@@ -25,7 +24,6 @@ if app.debug:
 CLIENT_SECRETS_FILE = pathlib.Path(__file__).parent / "creds/credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-# REDIRECT_URI = "http://localhost:8000/oauth2callback"
 REDIRECT_URI = os.environ.get('REDIRECT_URI', 'http://localhost:8000/oauth2callback')
 
 
