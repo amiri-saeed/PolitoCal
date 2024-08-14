@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Calendars</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+        <div class="header">
+            <h1>Your Calendars</h1>
+            <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+        </div>
+        <form action="{{ url_for('calendar_post') }}" method="POST" class="calendar-form">
+            <div class="form-group">
+                <label for="calendar_id">Select Calendar:</label>
+                <select name="calendar_id" id="calendar_id">
+                    {% for calendar in calendars %}
+                        <option value="{{ calendar.id }}">{{ calendar.summary }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+    <label for="calendar-url">University Calendar URL</label>
+    <input type="text" id="calendar_url" name="calendar_url" placeholder="https://www.swas.polito.it/..." />
+    <a href="#" id="modal-open" class="modal-link">Where to find the URL?</a>
+</div>
+
+<!-- Modal Structure -->
+<div id="info-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Where to find the URL?</h2>
+        <p>Go to your Portale della didattica and copy the link from <b>Orario settimanale lezioni</b>.</p>
+	<img src="{{ url_for('static', filename='images/where.png') }}" alt="University Calendar Screenshot" class="modal-image">
+        <!-- Optional: Add a screenshot or further instructions -->
+    </div>
+</div>
+
+
+            <button type="submit" class="btn submit-btn">Add Events to Calendar</button>
+        </form>
+    </div>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+</body>
+</html>
