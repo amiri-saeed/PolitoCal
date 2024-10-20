@@ -215,7 +215,7 @@ input[type="text"]::placeholder {
     opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
     background-color: #303030;
     opacity: 12%;
@@ -348,6 +348,67 @@ input[type="text"]::placeholder {
         width: 95%; /* Adjust width for smaller screens */
     }
 }
+
+
+
+
+/* Style the date picker */
+input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+/* Add focus effect to date picker */
+input[type="date"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+
+
+
+
+
+
+
+
+/* Date picker container styling */
+.date-picker-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Button styling for small buttons */
+.small-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin-left: 10px;
+    background-color: #003153;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.small-btn:hover {
+    background-color: #002244;
+}
+
+/* Date buttons container styling */
+.date-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+
 
 
 
