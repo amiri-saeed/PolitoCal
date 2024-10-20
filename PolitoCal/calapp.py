@@ -2,36 +2,34 @@ from flask import Flask, redirect, url_for, session, request, render_template, f
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from concurrent.futures import ThreadPoolExecutor
+# from concurrent.futures import ThreadPoolExecutor
 
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
-
 import os
 import pathlib
+import pytz
+from datetime import datetime, timedelta
 from parser.parse import parse_university_calendar  # Import your parser function
-
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
-
 
 if app.debug:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # For development only
 
 CLIENT_SECRETS_FILE = pathlib.Path(__file__).parent / "creds/credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-
 REDIRECT_URI = os.environ.get('REDIRECT_URI', 'http://localhost:8000/oauth2callback')
 
+LOCAL_TIMEZONE = pytz.timezone('Europe/Rome')
 
 @app.route('/')
 def index():
     if 'credentials' in session:
         return redirect(url_for('calendar_page'))
-    return render_template('index.html')  # Show raw page with login option
+    return render_template('index.html')
 
 @app.route('/authorize')
 def authorize():
@@ -70,14 +68,21 @@ def calendar_page():
         return redirect(url_for('index'))
 
     credentials = Credentials(**session['credentials'])
-    service = build('calendar', 'v3', credentials=credentials)
 
-    # Get the list of calendars
-    calendar_list = service.calendarList().list().execute()
-    calendars = calendar_list.get('items', [])
+    try:
+        service = build('calendar', 'v3', credentials=credentials)
+        calendar_list = service.calendarList().list().execute()
+        calendars = calendar_list.get('items', [])
+
+        # Update credentials in session after refreshing
+        session['credentials'] = credentials_to_dict(credentials)
+
+    except Exception:
+        session.clear()  # Clear session on refresh error
+        # flash('Session expired, please log in again.', 'error')
+        return redirect(url_for('index'))
 
     return render_template('calendar.html', calendars=calendars)
-
 
 @app.route('/calendar', methods=['POST'])
 def calendar_post():
@@ -89,29 +94,29 @@ def calendar_post():
 
     calendar_id = request.form['calendar_id']
     calendar_url = request.form['calendar_url']
+    start_date = request.form['start_date']
 
-    # Validate and correct the URL
+    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+
     try:
-        corrected_url = validate_and_correct_url(calendar_url)
+        corrected_url = validate_and_correct_url(calendar_url, start_date)
     except ValueError as e:
         flash(f"Invalid URL: {e}", 'error')
         return redirect(url_for('calendar_page'))
 
-    # Parse events from university calendar
     try:
         events = parse_university_calendar(corrected_url)
     except Exception as e:
         flash(f"Error parsing calendar: {e}", 'error')
         return redirect(url_for('calendar_page'))
 
-    # Parallelize the event insertion
     try:
-        with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(insert_event, service, calendar_id, event) for event in events]
+        for event in events:
+            logging.debug(f"Original event: {event['summary']} | Start: {event['start']['dateTime']} | End: {event['end']['dateTime']}")
 
-        # Optionally, wait for all futures to complete
-        for future in futures:
-            future.result()
+            logging.debug(f"Converted event: {event['summary']} | Start: {event['start']['dateTime']} | End: {event['end']['dateTime']}")
+
+            insert_event(service, calendar_id, event)
 
         flash("Events have been successfully added to your calendar!", 'success')
     except Exception as e:
@@ -119,11 +124,10 @@ def calendar_post():
 
     return redirect(url_for('calendar_page'))
 
-
 @app.route('/logout')
 def logout():
-    session.clear()  # Clear the session
-    return redirect(url_for('index'))  # Redirect to raw page
+    session.clear()
+    return redirect(url_for('index'))
 
 def insert_event(service, calendar_id, event):
     try:
@@ -133,20 +137,17 @@ def insert_event(service, calendar_id, event):
         print(f"Failed to insert event: {event['summary']}")
         print(f"Error: {e}")
 
-def validate_and_correct_url(url):
-    # Parse the URL
+def validate_and_correct_url(url, start_date):
     parsed_url = urlparse(url)
     query_params = parse_qs(parsed_url.query)
 
-    # Check if 'idImtNumcor' is present and correctly formatted
     idImtNumcor = query_params.get('idImtNumcor', [None])[0]
     if idImtNumcor is None or not all(part.count('-') == 1 for part in idImtNumcor.split('/')):
         raise ValueError("URL must contain 'idImtNumcor' with value formatted as 'id-course-id' separated by '/'. Look for Where to find the URL?")
 
-    # Ensure 'xml' parameter is set to 'S'
     query_params['xml'] = 'S'
+    query_params['datarif'] = start_date.strftime('%d/%m/%Y')
 
-    # Reconstruct the URL with the corrected parameters
     new_query_string = urlencode(query_params, doseq=True)
     corrected_url = urlunparse((
         parsed_url.scheme,
@@ -171,10 +172,6 @@ def credentials_to_dict(credentials):
 
 if __name__ == '__main__':
     app.run('localhost', 8000, debug=True)
-
-
-
-
 
 
 
