@@ -8,17 +8,17 @@
 </head>
 <body>
     <div class="container">
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="messages">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="messages">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
         <div class="header">
             <h1>Your Calendars</h1>
             <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
@@ -32,22 +32,35 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-    <label for="calendar-url">University Calendar URL</label>
-    <input type="text" id="calendar_url" name="calendar_url" placeholder="https://www.swas.polito.it/..." />
-    <a href="#" id="modal-open" class="modal-link">Where to find the URL?</a>
-</div>
 
-<!-- Modal Structure -->
-<div id="info-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Where to find the URL?</h2>
-        <p>Go to your Portale della didattica and copy the link from <b>Orario settimanale lezioni</b>.</p>
-	<img src="{{ url_for('static', filename='images/where.png') }}" alt="University Calendar Screenshot" class="modal-image">
-        <!-- Optional: Add a screenshot or further instructions -->
-    </div>
-</div>
+            <div class="form-group">
+                <label for="start_date">Select a Date in Your Desired Week:</label>
+                <div class="date-picker-container">
+                    <input type="date" id="start_date" name="start_date" required>
+                    <div class="date-buttons">
+                        <button type="button" id="set-today" class="btn small-btn">Current Week</button>
+                        <button type="button" id="set-next-week" class="btn small-btn">Next Week</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="calendar-url">University Calendar URL</label>
+                <input type="text" id="calendar_url" name="calendar_url" placeholder="https://www.swas.polito.it/..." />
+                <br>
+                <a href="#" id="modal-open" class="modal-link">Where to find the URL?</a>
+            </div>
+
+            <!-- Modal Structure -->
+            <div id="info-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h2>Where to find the URL?</h2>
+                    <p>Go to your Portale della didattica and copy the link address from <b>Orario settimanale lezioni</b>.</p>
+            	<img src="{{ url_for('static', filename='images/where.png') }}" alt="University Calendar Screenshot" class="modal-image">
+                    <!-- Optional: Add a screenshot or further instructions -->
+                </div>
+            </div>
 
 
             <button type="submit" class="btn submit-btn">Add Events to Calendar</button>
