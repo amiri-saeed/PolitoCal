@@ -6,3 +6,4 @@
 * Fix the jump to next week from mondays.
 * Do the video and explain the applicaiton.
 * Have a more intuitive guide for users to understand that the service only does a weekly tranfer.
+* Update the weekly plan, once some events are deleted/added/updated, just compare and update the calendar and not just write all of them again.
