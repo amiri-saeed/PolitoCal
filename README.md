@@ -1,9 +1,9 @@
 ## TODO
-* Add different types of events other than course/classes.
-* Add the feature for the user to be able to create the events in a recursive way.
-* Support English and Italian languages based on the url user provide.
+* Add different types of events other than courses/classes.
+* Add the feature so the user can create the events recursively.
+* Support English and Italian languages.
 * Fix the Scopes used to comply with Google Application.
-* Fix the jump to next week from mondays.
-* Do the video and explain the applicaiton.
-* Have a more intuitive guide for users to understand that the service only does a weekly tranfer.
-* Update the weekly plan, once some events are deleted/added/updated, just compare and update the calendar and not just write all of them again.
+* Fix the jump to next week from Mondays.
+* Do the video and explain the application.
+* Have a more intuitive guide for users to understand that the service only does a weekly transfer.
+* Update the weekly plan, once some events are deleted/added/updated.
